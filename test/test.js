@@ -1,6 +1,6 @@
 var assert = require( 'assert' );
 var rollup = require( 'rollup' );
-var md = require( '../dist/rollup-plugin-md.js' );
+var less = require( '../dist/rollup-plugin-less.js' );
 var npm = require( 'rollup-plugin-node-resolve' );
 
 require( 'source-map-support' ).install();
@@ -15,20 +15,12 @@ function executeBundle ( bundle ) {
     fn( assert );
 }
 
-describe( 'rollup-plugin-md', function () {
-    it( 'converts md', function () {
+describe( 'rollup-plugin-less', function () {
+    it( 'converts less', function () {
         return rollup.rollup({
             entry: 'samples/main.js',
-            plugins: [ md({
-                marked: {
-                      gfm: true,
-                      tables: true,
-                      breaks: false,
-                      pedantic: false,
-                      sanitize: true,
-                      smartLists: true,
-                      smartypants: false
-                }
+            plugins: [ less({
+                output: './style.css'
             }) ]
         }).then( executeBundle );
     });

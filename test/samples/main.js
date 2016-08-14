@@ -1,2 +1,2 @@
-import md from './test.md'
-console.log('md: ', md)
+import css from './test.less'
+console.log('css: ', css)

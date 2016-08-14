@@ -1,26 +1,49 @@
-import marked from 'marked';
-import { createFilter, makeLegalIdentifier } from 'rollup-pluginutils';
+import fs from 'fs';
+import { dirname } from 'path';
+import less from 'less';
+import { createFilter } from 'rollup-pluginutils';
 
-const ext = /\.md$/;
 
+let renderSync = (code, option) => {
+  return new Promise((resolve, reject) => {
+    less.render(code, option, function(e, output){
+        if(e) throw e;
+        resolve(output.css);
+    });
+  });
+};
 
-export default function md ( options = {} ) {
-    const filter = createFilter( options.include || [ '**/*.md'], options.exclude );
-    if(options.marked){
-      marked.setOptions(options.marked)
-    }
+export default function plugin(options = {}) {
+    const filter = createFilter(options.include || [ '**/*.less', '**/*.less' ], options.exclude || 'node_modules/**');
+
     return {
-        name: 'md',
+        name: 'less',
+        async transform(code, id) {
+            if (!filter(id)) {
+                return null;
+            }
+            try {
+                let css = await renderSync(code, options.option)
 
-        transform ( md, id ) {
-            if ( !ext.test( id ) ) return null;
-            if ( !filter( id ) ) return null;
+                if (isString(options.output)) {
+                     fs.writeFileSync(options.output, css);
+                }
 
-            const data = marked( md );
-            return {
-                code: `export default ${JSON.stringify(data.toString())};`,
-                map: { mappings: '' }
-            };
+                return {
+                    code: `export default ${JSON.stringify(css.toString())};`,
+                    map: { mappings: '' }
+                };
+            } catch (error) {
+                throw error;
+            }
         }
     };
+};
+
+function isString (str) {
+    if(typeof str == 'string'){
+        return true;
+    }else{
+        return false;
+    }
 }
