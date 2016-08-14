@@ -7,13 +7,13 @@ npm install rollup-plugin-less --save
 ## usage
 
 ```js
-import md from './test.less';
-console.log( `Template for render: ${md}` );
+import css from './test.less';
+console.log( 'css: ', css );
 ```
 
 ```js
 import { rollup } from 'rollup';
-import md from 'rollup-plugin-less';
+import less from 'rollup-plugin-less';
 
 rollup({
     entry: 'main.js',

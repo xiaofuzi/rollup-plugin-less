@@ -24,6 +24,10 @@
     "rollup-plugin-buble": "^0.12.1",
     "rollup-pluginutils": "^1.5.1"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiaofuzi/rollup-plugin-less"
+  },
   "devDependencies": {
     "assert": "^1.4.1",
     "eslint": "^3.2.2",
@@ -36,3 +40,4 @@
     "rollup-plugin-babel": "^2.4.0"
   }
 }
+
