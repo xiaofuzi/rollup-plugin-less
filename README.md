@@ -34,7 +34,7 @@ rollup({
 Optional. Type: String
 it will be the path to write the generated CSS. 
 
-*boption
+* option
 
 Optional. Type: Object
 
