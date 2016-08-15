@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs-extra';
 import { dirname } from 'path';
 import less from 'less';
 import { createFilter } from 'rollup-pluginutils';
@@ -13,6 +13,7 @@ let renderSync = (code, option) => {
   });
 };
 
+let fileCount = 0
 export default function plugin(options = {}) {
     const filter = createFilter(options.include || [ '**/*.less', '**/*.less' ], options.exclude || 'node_modules/**');
 
@@ -22,12 +23,23 @@ export default function plugin(options = {}) {
             if (!filter(id)) {
                 return null;
             }
+            fileCount++
+
             try {
                 let css = await renderSync(code, options.option)
+                
+                if(isFunc(options.output)){
+                    css = await options.output(css, id);
+                }
 
                 if (isString(options.output)) {
-                     fs.writeFileSync(options.output, css);
+                    if(fileCount == 1){
+                        //clean output file
+                        fs.removeSync(options.output)
+                    }
+                    fs.appendFileSync(options.output, css);
                 }
+
 
                 return {
                     code: `export default ${JSON.stringify(css.toString())};`,
@@ -45,5 +57,13 @@ function isString (str) {
         return true;
     }else{
         return false;
+    }
+}
+
+function isFunc (fn){
+    if ( typeof fn == 'function' ){
+        return true
+    }else{
+        return false
     }
 }

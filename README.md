@@ -31,8 +31,9 @@ rollup({
 ## options
 
 * output
-Optional. Type: String
-it will be the path to write the generated CSS. 
+Optional. Type: String || Function
+if you specify a string, it will be the path to write the generated CSS. 
+If you specify a function, call it passing the generated CSS and id(less file path) as an argument.
 
 * option
 
