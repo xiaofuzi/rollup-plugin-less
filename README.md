@@ -7,8 +7,8 @@ npm install rollup-plugin-less --save
 ## usage
 
 ```js
-import css from './test.less';
-console.log( 'css: ', css );
+import './test.less';
+//generate css will be auto insert to the head tag
 ```
 
 ```js

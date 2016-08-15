@@ -19,9 +19,20 @@ describe( 'rollup-plugin-less', function () {
     it( 'converts less', function () {
         return rollup.rollup({
             entry: 'samples/main.js',
+            targets: [
+                {
+                    format: 'cjs',
+                    dest: './bundle.js'
+                }
+            ],
             plugins: [ less({
                 output: './style.css'
             }) ]
-        }).then( executeBundle );
+        }).then((bundle) => {
+            bundle.write({
+                dest: './dist.cjs.js',
+                format: 'cjs'
+            });
+       });
     });
 });

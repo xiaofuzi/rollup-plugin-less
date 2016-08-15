@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import { dirname } from 'path';
 import less from 'less';
 import { createFilter } from 'rollup-pluginutils';
-
+import { insertStyle } from './style.js'
 
 let renderSync = (code, option) => {
   return new Promise((resolve, reject) => {
@@ -14,11 +14,16 @@ let renderSync = (code, option) => {
 };
 
 let fileCount = 0
+
 export default function plugin(options = {}) {
     const filter = createFilter(options.include || [ '**/*.less', '**/*.less' ], options.exclude || 'node_modules/**');
 
+    const injectFnName = '__$styleInject'
     return {
         name: 'less',
+        intro() {
+            return insertStyle.toString().replace(/insertStyle/, injectFnName);
+        },
         async transform(code, id) {
             if (!filter(id)) {
                 return null;
@@ -40,9 +45,10 @@ export default function plugin(options = {}) {
                     fs.appendFileSync(options.output, css);
                 }
 
-
+                let exportCode = `export default ${injectFnName}(${JSON.stringify(css.toString())});`
+                console.log('code: ', exportCode)
                 return {
-                    code: `export default ${JSON.stringify(css.toString())};`,
+                    code: exportCode,
                     map: { mappings: '' }
                 };
             } catch (error) {
