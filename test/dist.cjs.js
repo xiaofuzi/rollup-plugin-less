@@ -11,6 +11,3 @@ function __$styleInject(css) {
     document.head.appendChild(style);
     return css;
 }
-__$styleInject("body .wrap {\n  color: #fff;\n}\nbody a {\n  font-size: 12px;\n}\n");
-
-__$styleInject(".content .header {\n  font-size: 12px;\n}\n.content .body {\n  color: #333;\n}\n");

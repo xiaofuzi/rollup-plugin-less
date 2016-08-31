@@ -10,9 +10,9 @@ function insertStyle ( css ) {
     let style = document.createElement('style');
     style.setAttribute('media', 'screen');
 
-    style.innerHTML = css
+    style.innerHTML = css;
     document.head.appendChild(style);
-    return css
+    return css;
 }
 
 export {

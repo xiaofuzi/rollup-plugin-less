@@ -2,20 +2,20 @@ import fs from 'fs-extra';
 import { dirname } from 'path';
 import less from 'less';
 import { createFilter } from 'rollup-pluginutils';
-import { insertStyle } from './style.js'
+import { insertStyle } from './style.js';
 
 let renderSync = (code, option) => {
-  return new Promise((resolve, reject) => {
-    less.render(code, option, function(e, output){
+  return new Promise ((resolve, reject) => {
+    less.render (code, option, function(e, output) {
         if(e) throw e;
         resolve(output.css);
     });
   });
 };
 
-let fileCount = 0
+let fileCount = 0;
 
-export default function plugin(options = {}) {
+export default function plugin (options = {}) {
     const filter = createFilter(options.include || [ '**/*.less', '**/*.less' ], options.exclude || 'node_modules/**');
 
     const injectFnName = '__$styleInject'
@@ -28,25 +28,30 @@ export default function plugin(options = {}) {
             if (!filter(id)) {
                 return null;
             }
-            fileCount++
+            fileCount++;
 
             try {
-                let css = await renderSync(code, options.option)
+                let css = await renderSync(code, options.option);
                 
-                if(isFunc(options.output)){
+                if(options.output&&isFunc(options.output)){
                     css = await options.output(css, id);
                 }
 
-                if (isString(options.output)) {
+                if (options.output&&isString(options.output)) {
                     if(fileCount == 1){
                         //clean output file
-                        fs.removeSync(options.output)
+                        fs.removeSync(options.output);
                     }
                     fs.appendFileSync(options.output, css);
                 }
 
-                let exportCode = `export default ${injectFnName}(${JSON.stringify(css.toString())});`
-                console.log('code: ', exportCode)
+                let exportCode = '';
+
+                if(options.insert){
+                    exportCode = `export default ${injectFnName}(${JSON.stringify(css.toString())});`;
+                }else{
+                    exportCode = `export default ${JSON.stringify(css.toString())};`;
+                }
                 return {
                     code: exportCode,
                     map: { mappings: '' }
@@ -68,8 +73,8 @@ function isString (str) {
 
 function isFunc (fn){
     if ( typeof fn == 'function' ){
-        return true
+        return true;
     }else{
-        return false
+        return false;
     }
 }
