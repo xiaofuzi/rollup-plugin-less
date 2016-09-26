@@ -4,6 +4,9 @@ body .wrap {
 body a {
   font-size: 12px;
 }
+.hidden {
+  display: none !important;
+}
 .content .header {
   font-size: 12px;
 }

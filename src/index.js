@@ -4,13 +4,14 @@ import less from 'less';
 import { createFilter } from 'rollup-pluginutils';
 import { insertStyle } from './style.js';
 
+
 let renderSync = (code, option) => {
-  return new Promise ((resolve, reject) => {
-    less.render (code, option, function(e, output) {
-        if(e) throw e;
-        resolve(output.css);
-    });
-  });
+    return less.render(code, option)
+        .then(function(output){
+            return output.css;
+        }, function(error){
+            throw error;
+        })
 };
 
 let fileCount = 0;
@@ -31,6 +32,8 @@ export default function plugin (options = {}) {
             fileCount++;
 
             try {
+                options.option = options.option || {};
+                options.option['filename'] = id;
                 let css = await renderSync(code, options.option);
                 
                 if(options.output&&isFunc(options.output)){

@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-less",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "a rollup plugin for less files",
   "main": "dist/rollup-plugin-less.js",
   "jsnext:main": "dist/rollup-plugin-less.mjs",
@@ -13,8 +13,8 @@
   "keywords": [
     "rollup",
     "plugin",
-    "md",
-    "markdown"
+    "less",
+    "rollup-plugin"
   ],
   "author": "yangxiaofu",
   "license": "ISC",
