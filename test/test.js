@@ -25,9 +25,7 @@ describe( 'rollup-plugin-less', function () {
                     dest: './bundle.js'
                 }
             ],
-            plugins: [ less({
-                output: './style.css'
-            }) ]
+            plugins: [ less() ]
         }).then((bundle) => {
             bundle.write({
                 dest: './dist.cjs.js',

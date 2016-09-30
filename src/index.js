@@ -34,6 +34,8 @@ export default function plugin (options = {}) {
             try {
                 options.option = options.option || {};
                 options.option['filename'] = id;
+                options.output = options.output || 'rollup.build.css';
+                
                 let css = await renderSync(code, options.option);
                 
                 if(options.output&&isFunc(options.output)){
@@ -42,7 +44,7 @@ export default function plugin (options = {}) {
 
                 if (options.output&&isString(options.output)) {
                     if(fileCount == 1){
-                        //clean output file
+                        //clean the output file
                         fs.removeSync(options.output);
                     }
                     fs.appendFileSync(options.output, css);
@@ -50,7 +52,7 @@ export default function plugin (options = {}) {
 
                 let exportCode = '';
 
-                if(options.insert){
+                if(options.insert!=false){
                     exportCode = `export default ${injectFnName}(${JSON.stringify(css.toString())});`;
                 }else{
                     exportCode = `export default ${JSON.stringify(css.toString())};`;

@@ -21,5 +21,5 @@ export default {
         }
     ],
     external: external,
-    sourceMap: true
+    sourceMap: false
 };

@@ -8,7 +8,7 @@ npm install rollup-plugin-less --save
 
 ```js
 import './test.less';
-//generate css will be auto insert to the head tag
+//generate css will be auto insert to the head tag if you set insert be true
 ```
 
 ```js
@@ -34,6 +34,9 @@ rollup({
 If you specify `true`, the plugin will insert compiled CSS into `<head/>` tag.
 
 ### output
+
++ Default: `rollup.build.css`
++ Type: `String`
 
 + Type: `String|Function`
 
