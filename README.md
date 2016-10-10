@@ -36,7 +36,6 @@ If you specify `true`, the plugin will insert compiled CSS into `<head/>` tag.
 ### output
 
 + Default: `rollup.build.css`
-+ Type: `String`
 
 + Type: `String|Function`
 
@@ -46,7 +45,6 @@ If you specify a function, call it passing the generated CSS as an argument.
 ### include
 
 + Default: `[ '**/*.less', '**/*.css' ]`
-+ Type: `Array`
 
 + Type: `String|Array`
 
@@ -55,13 +53,12 @@ Minimatch pattern or array of minimatch patterns to determine which files are tr
 ### exclude
 
 + Default: `node_modules/**`
-+ Type: `String`
 
 + Type: `String|Array`
 
 Minimatch pattern or array of minimatch patterns to determine which files are explicitly not transpiled by the plugin, overrules the `include` option.
 
-### options
+### option
 
 + Type: `Object`
 
