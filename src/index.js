@@ -5,8 +5,8 @@ import { createFilter } from 'rollup-pluginutils';
 import { insertStyle } from './style.js';
 
 
-let renderSync = (code, option) => {
-    return less.render(code, option)
+let renderSync = (code, options) => {
+    return less.render(code, options)
         .then(function(output){
             return output.css;
         }, function(error){
@@ -32,12 +32,12 @@ export default function plugin (options = {insert: false}) {
             fileCount++;
 
             try {
-                options.option = options.option || {};
-                options.option['filename'] = id;
+                options.options = options.options || {};
+                options.options['filename'] = id;
                 options.output = options.output || 'rollup.build.css';
-                
-                let css = await renderSync(code, options.option);
-                
+
+                let css = await renderSync(code, options.options);
+
                 if(options.output&&isFunc(options.output)){
                     css = await options.output(css, id);
                 }
