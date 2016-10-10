@@ -17,7 +17,7 @@ let renderSync = (code, option) => {
 let fileCount = 0;
 
 export default function plugin (options = {}) {
-    const filter = createFilter(options.include || [ '**/*.less', '**/*.less' ], options.exclude || 'node_modules/**');
+    const filter = createFilter(options.include || [ '**/*.less', '**/*.css' ], options.exclude || 'node_modules/**');
 
     const injectFnName = '__$styleInject'
     return {
