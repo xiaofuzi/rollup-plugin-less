@@ -23,7 +23,7 @@ export default function plugin (options = {insert: false}) {
     return {
         name: 'less',
         intro() {
-            return insertStyle.toString().replace(/insertStyle/, injectFnName);
+            return options.insert ? insertStyle.toString().replace(/insertStyle/, injectFnName) : '';
         },
         async transform(code, id) {
             if (!filter(id)) {
@@ -35,9 +35,9 @@ export default function plugin (options = {insert: false}) {
                 options.option = options.option || {};
                 options.option['filename'] = id;
                 options.output = options.output || 'rollup.build.css';
-                
+
                 let css = await renderSync(code, options.option);
-                
+
                 if(options.output&&isFunc(options.output)){
                     css = await options.output(css, id);
                 }
