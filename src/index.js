@@ -53,9 +53,9 @@ export default function plugin (options = {}) {
 
                 let exportCode = '';
 
-                if(options.insert!=false){
+                if (options.insert!==false) {
                     exportCode = `export default ${injectFnName}(${JSON.stringify(css.toString())});`;
-                }else{
+                } else if (options.output===true) {
                     exportCode = `export default ${JSON.stringify(css.toString())};`;
                 }
                 return {
