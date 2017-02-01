@@ -36,6 +36,9 @@ export default function plugin (options = {}) {
                 options.option = options.option || {};
                 options.option['filename'] = id;
                 options.output = options.output || 'rollup.build.css';
+                if (options.plugins) {
+                  options.option['plugins'] = options.plugins
+                }
 
                 let css = await renderSync(code, options.option);
 
