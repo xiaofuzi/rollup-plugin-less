@@ -1,5 +1,4 @@
 import fs from 'fs-extra';
-import { dirname } from 'path';
 import less from 'less';
 import { createFilter } from 'rollup-pluginutils';
 import { insertStyle } from './style.js';
