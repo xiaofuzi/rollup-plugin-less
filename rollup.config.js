@@ -1,25 +1,24 @@
-import babel from 'rollup-plugin-babel';
-var pkg = require('./package.json')
-var external = Object.keys( pkg.dependencies );
+import buble from 'rollup-plugin-buble';
+let pkg = require('./package.json');
+let {'jsnext:main': jsnext, main} = pkg;
+let external = Object.keys(pkg.dependencies);
 
 export default {
-    entry: 'src/index.js',
-    plugins: [
-        babel({
-            exclude: 'node_modules/**',
-            runtimeHelpers: true
-        })
-    ],
-    targets: [
-        {
-            format: 'cjs',
-            dest: pkg['main']
-        },
-        {
-            format: 'es',
-            dest: pkg['jsnext:main']
-        }
-    ],
-    external: external,
-    sourceMap: false
+  entry: 'src/index.js',
+  plugins: [
+    buble()
+  ],
+  targets: [{
+    format: 'cjs',
+    dest: main
+  }, {
+    format: 'es',
+    dest: jsnext
+  }],
+  globals: {
+    JSON: 'JSON',
+    Promise: 'Promise'
+  },
+  external: external,
+  sourceMap: false
 };

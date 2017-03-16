@@ -1,88 +1,50 @@
-import fs from 'fs-extra';
-import less from 'less';
-import { createFilter } from 'rollup-pluginutils';
-import { insertStyle } from './style.js';
+import {createFilter}    from 'rollup-pluginutils';
+import fs                from 'fs-extra';
+import * as dflts        from './lib/consts';
+import appenderGenerator from './lib/appender-generator';
+import lessifier         from './lib/lessifier';
 
+export default (options = {}) => {
+  let {insert = false, include = dflts.include, exclude = dflts.exclude} = options;
+  let {option = {}, plugins} = options;
+  let {output = dflts.cssFilename} = option;
+  const filter = createFilter(include, exclude);
+  
+  filter.count = 0;
+  Object.assign(option, {plugins});
 
-let renderSync = (code, option) => {
-    return less.render(code, option)
-        .then(function(output){
-            return output.css;
-        }, function(error){
-            throw error;
-        })
-};
+  return {
+    name: 'less',
+    
+    intro() {
+      return appenderGenerator(insert);
+    },
+    
+    transform(code, id) {
+      if (!filter(id)) {
+        return;
+      }
+      
+      option.filename = id;
 
-let fileCount = 0;
-
-export default function plugin (options = {}) {
-    options.insert = options.insert || false;
-    const filter = createFilter(options.include || [ '**/*.less', '**/*.css' ], options.exclude || 'node_modules/**');
-
-    const injectFnName = '__$styleInject'
-    return {
-        name: 'less',
-        intro() {
-            return options.insert ? insertStyle.toString().replace(/insertStyle/, injectFnName) : '';
-        },
-        async transform(code, id) {
-            if (!filter(id)) {
-                return null;
-            }
-            fileCount++;
-
-            try {
-                options.option = options.option || {};
-                options.option['filename'] = id;
-                options.output = options.output || 'rollup.build.css';
-                if (options.plugins) {
-                  options.option['plugins'] = options.plugins
-                }
-
-                let css = await renderSync(code, options.option);
-
-                if(options.output&&isFunc(options.output)){
-                    css = await options.output(css, id);
-                }
-
-                if (options.output&&isString(options.output)) {
-                    if(fileCount == 1){
-                        //clean the output file
-                        fs.removeSync(options.output);
-                    }
-                    fs.appendFileSync(options.output, css);
-                }
-
-                let exportCode = '';
-
-                if(options.insert!=false){
-                    exportCode = `export default ${injectFnName}(${JSON.stringify(css.toString())});`;
-                }else{
-                    exportCode = `export default ${JSON.stringify(css.toString())};`;
-                }
-                return {
-                    code: exportCode,
-                    map: { mappings: '' }
-                };
-            } catch (error) {
-                throw error;
-            }
+      return lessifier(code, option).then(css => {
+        if(typeof output === 'string') {
+          if(++filter.count === 1) {
+            fs.removeSync(output);
+          }
+          fs.appendFileSync(output, css);
+        } else if(typeof output === 'function') {
+          css = output(css, id);
         }
-    };
+
+        return Promise.resolve(css);
+      }).then(css => {
+        css = JSON.stringify(css.toString());
+        let code = 'export default ';
+        code += insert ? `${dflts.injectFnName}(${css})` : css;
+        
+        return {code, map: {mappings: ''}};
+      });
+    }
+  };
 };
-
-function isString (str) {
-    if(typeof str == 'string'){
-        return true;
-    }else{
-        return false;
-    }
-}
-
-function isFunc (fn){
-    if ( typeof fn == 'function' ){
-        return true;
-    }else{
-        return false;
-    }
-}
