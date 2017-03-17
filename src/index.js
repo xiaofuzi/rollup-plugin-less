@@ -44,7 +44,7 @@ export default (options = {}) => {
         code += insert ? `${dflts.injectFnName}(${css})` : css;
         
         return {code, map: {mappings: ''}};
-      });
+      }).catch(e => console.error(e));
     }
   };
 };
