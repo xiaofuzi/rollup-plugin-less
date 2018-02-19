@@ -19,6 +19,7 @@
   "author": "yangxiaofu",
   "license": "ISC",
   "dependencies": {
+    "babel-runtime": "^6.26.0",
     "fs-extra": "^0.30.0",
     "less": "^2.7.1",
     "rollup": "^0.34.7",
