@@ -3,7 +3,21 @@ import { dirname } from 'path';
 import less from 'less';
 import { createFilter } from 'rollup-pluginutils';
 import { insertStyle } from './style.js';
+import mkdirp from 'mkdirp';
 
+/**
+ * 根据路径写入文件，文件夹不存在则创建
+ * @param {String} path 路径
+ * @param {String} contents 待写入文件内容
+ * @param {Function} cb 回调函数
+ */
+const writeFile = (path, contents, cb) => {
+    mkdirp(dirname(path), function (err) {
+        if (err && typeof cb === 'function') return cb(err);
+
+        fs.writeFile(path, contents, cb);
+    });
+}
 
 let renderSync = (code, option) => {
     return less.render(code, option)
@@ -51,7 +65,7 @@ export default function plugin (options = {}) {
                         //clean the output file
                         fs.removeSync(options.output);
                     }
-                    fs.appendFileSync(options.output, css);
+                    writeFile(options.output, css);
                 }
 
                 let exportCode = '';
