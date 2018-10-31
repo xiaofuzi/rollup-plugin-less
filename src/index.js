@@ -6,10 +6,10 @@ import { insertStyle } from './style.js';
 import mkdirp from 'mkdirp';
 
 /**
- * 根据路径写入文件，文件夹不存在则创建
- * @param {String} path 路径
- * @param {String} contents 待写入文件内容
- * @param {Function} cb 回调函数
+ * Write to a file even if its directory does not exist
+ * @param {String} path the path of the file write to
+ * @param {String} contents contents of file
+ * @param {Function} cb callback function when write action finish
  */
 const writeFile = (path, contents, cb) => {
     mkdirp(dirname(path), function (err) {
