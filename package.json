@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-less",
-  "version": "0.1.1",
+  "version": "1.1.1",
   "description": "a rollup plugin for less files",
   "main": "dist/rollup-plugin-less.js",
   "jsnext:main": "dist/rollup-plugin-less.mjs",
@@ -24,7 +24,8 @@
     "less": "^3.9.0",
     "mkdirp": "^0.5.1",
     "rollup": "^0.34.7",
-    "rollup-pluginutils": "^1.5.1"
+    "rollup-pluginutils": "^1.5.1",
+    "growl": ">=1.10.0"
   },
   "repository": {
     "type": "git",
