@@ -18,7 +18,7 @@ const appendToFile = (path, contents) => {
             }
 
             fs.appendFileSync(path, contents)
-            resolve(r);
+            resolve();
         });
     });
 }
@@ -37,12 +37,17 @@ let fileCount = 0;
 export default function plugin(options = {}) {
     options.insert = options.insert || false;
     const filter = createFilter(options.include || ['**/*.less', '**/*.css'], options.exclude || 'node_modules/**');
-
+    options.watch = options.watch || false;
     const injectFnName = '__$styleInject'
     return {
         name: 'less',
         intro() {
             return options.insert ? insertStyle.toString().replace(/insertStyle/, injectFnName) : '';
+        },
+        load() {
+            if (options.watch){
+                fileCount = 0;
+            }
         },
         async transform(code, id) {
             if (!filter(id)) {

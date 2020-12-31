@@ -1,3 +1,9 @@
+body .wrap {
+  color: #fff;
+}
+body a {
+  font-size: 12px;
+}
 .hidden {
   display: none !important;
 }
