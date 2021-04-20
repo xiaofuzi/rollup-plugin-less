@@ -1,27 +1,8 @@
-import fs from 'fs-extra';
+import fs from 'fs';
 import { dirname } from 'path';
 import less from 'less';
 import { createFilter } from 'rollup-pluginutils';
 import { insertStyle } from './style.js';
-import mkdirp from 'mkdirp';
-
-/**
- * Appends to a file even if its directory does not exist
- * @param {String} path the path of the file write to
- * @param {String} contents contents of file
- */
-const appendToFile = (path, contents) => {
-    return new Promise((resolve, reject) => {
-        mkdirp(dirname(path), function (err) {
-            if (err) {
-                reject(err)
-            }
-
-            fs.appendFileSync(path, contents)
-            resolve();
-        });
-    });
-}
 
 let renderSync = (code, option) => {
     return less.render(code, option)
@@ -32,83 +13,98 @@ let renderSync = (code, option) => {
         })
 };
 
-let fileCount = 0;
-
 export default function plugin(options = {}) {
     options.insert = options.insert || false;
+    options.output = options.output === undefined || options.output === true ? 'rollup.build.css' : options.output;
+    options.option = options.option || {};
+    
     const filter = createFilter(options.include || ['**/*.less', '**/*.css'], options.exclude || 'node_modules/**');
-    options.watch = options.watch || false;
     const injectFnName = '__$styleInject'
+    
+    // mapping from source to processed css data
+    let generatedData = {}
+    // watcher iteration number, used to remove stale data from generatedData
+    let epoch = 1
+    
     return {
         name: 'less',
         intro() {
             return options.insert ? insertStyle.toString().replace(/insertStyle/, injectFnName) : '';
         },
-        load() {
-            if (options.watch){
-                fileCount = 0;
+        buildStart() { epoch++ },
+        load(id) {
+            if (!filter(id)) {
+                return null;
+            }
+            if (id in generatedData) {
+                // mark file used on current iteration
+                generatedData[id]['epoch'] = epoch
+            }
+        },
+        generateBundle () {
+            if (options.output && isString(options.output)) {
+                fs.mkdirSync(dirname(options.output), { recursive: true });
+
+                let totalSourcesUsed = 0;
+                let fd = fs.openSync(options.output, 'w')
+                for (let id in generatedData) {
+                    if (generatedData[id]['epoch'] < epoch) {
+                        continue;
+                    }
+                    totalSourcesUsed++;
+                    fs.appendFileSync(fd, generatedData[id]['css'])
+                }
+                fs.closeSync(fd)
+
+                if (totalSourcesUsed > 0) {
+                    let totalSourcesUsedMsg = totalSourcesUsed > 1 ? `${totalSourcesUsed} sources` : `one source`;
+                    console.log(`rollup-plugin-less: styles from ${totalSourcesUsedMsg} are written into '${options.output}'`)
+                } else {
+                    console.log(`rollup-plugin-less: no styles`)
+                }
             }
         },
         async transform(code, id) {
             if (!filter(id)) {
                 return null;
             }
-            fileCount++;
 
-            try {
-                options.option = options.option || {};
-                options.option['filename'] = id;
-                options.output = options.output === undefined || options.output === true ? 'rollup.build.css' : options.output;
-                if (options.plugins) {
-                    options.option['plugins'] = options.plugins
-                }
-
-                let css = await renderSync(code, options.option);
-
-                if (options.output && isFunc(options.output)) {
-                    css = await options.output(css, id);
-                }
-
-                if (options.output && isString(options.output)) {
-                    if (fileCount == 1) {
-                        //clean the output file
-                        fs.removeSync(options.output);
-                    }
-                    await appendToFile(options.output, css);
-                }
-
-                let exportCode = '';
-
-                if (options.insert != false) {
-                    exportCode = `export default ${injectFnName}(${JSON.stringify(css.toString())});`;
-                } else {
-                    exportCode = `export default ${JSON.stringify(css.toString())};`;
-                }
-                return {
-                    code: exportCode,
-                    map: {
-                        mappings: ''
-                    }
-                };
-            } catch (error) {
-                throw error;
+            // create shallow copy not to modify 'options'
+            let renderOptions = Object.assign({}, options.option);
+            renderOptions['filename'] = id;
+            if (options.plugins) {
+                renderOptions['plugins'] = options.plugins
             }
+
+            let css = await renderSync(code, renderOptions);
+
+            if (options.output && isFunc(options.output)) {
+                css = await options.output(css, id);
+            }
+            console.log(`rollup-plugin-less: compile style '${id}'`)
+
+            generatedData[id] = {epoch, css}
+
+            let exportCode;
+            if (options.insert) {
+                exportCode = `export default ${injectFnName}(${JSON.stringify(css.toString())});`;
+            } else {
+                exportCode = `export default ${JSON.stringify(css.toString())};`;
+            }
+            return {
+                code: exportCode,
+                map: {
+                    mappings: ''
+                }
+            };
         }
     };
 };
 
 function isString(str) {
-    if (typeof str == 'string') {
-        return true;
-    } else {
-        return false;
-    }
+    return (typeof str == 'string');
 }
 
 function isFunc(fn) {
-    if (typeof fn == 'function') {
-        return true;
-    } else {
-        return false;
-    }
+    return (typeof fn == 'function');
 }
